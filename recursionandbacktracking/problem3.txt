@@ -1,0 +1,84 @@
+Problem 3: N-Queens Optimization and Variantsa) Search Space Analysis for 8-QueensBrute Force (no constraints)
+Place 8 queens anywhere on 64 squares, order doesn't matter:C(64, 8) = 64! / (8! × 56!) = 4,426,165,368 ≈ 4.4 billion positionsEvery one of these must be checked for validity — completely impractical.One Queen Per Row Constraint
+Each row gets exactly one queen. For each of 8 rows, choose 1 of 8 columns:8 × 8 × 8 × ... (8 times) = 8^8 = 16,777,216 ≈ 16.7 million positionsThis is already 264× smaller than brute force, just from one constraint.Add One Queen Per Column Constraint
+Now each row AND column gets exactly one queen — this is a permutation:8! = 40,320 positions (just permutations of columns across rows)What Backtracking Actually Explores
+With full backtracking (row + column + diagonal checks), the algorithm prunes entire branches early. Empirically for N=8, backtracking explores approximately 15,720 nodes before finding all 92 solutions. For finding just the first solution, it explores roughly ~876 nodes — a tiny fraction of even 40,320. The earlier a conflict is detected (row 2 vs row 7), the larger the subtree pruned.b) Optimized N-Queens DesignWhy 1D Array + Diagonal Tracking?The naive 2D board approach wastes time scanning rows, columns, and diagonals on every placement check. The optimized approach pre-computes these constraints using three boolean arrays:board[row] = col          // queen in this row sits at this column
+cols[col]  = true/false   // is this column occupied?
+diag1[row - col + N - 1] = true/false   // left diagonal occupied?
+diag2[row + col]          = true/false  // right diagonal occupied?The diagonal insight: All squares on the same left diagonal share the same value of (row - col). All squares on the same right diagonal share the same value of (row + col). By indexing boolean arrays with these values, we check any conflict in O(1) instead of O(N).function solveNQueens(N):
+    board = array of size N, initialized to -1
+    cols  = boolean array of size N,         initialized to false
+    diag1 = boolean array of size 2*N - 1,  initialized to false
+    diag2 = boolean array of size 2*N - 1,  initialized to false
+
+    placeQueen(0, N, board, cols, diag1, diag2)
+
+function placeQueen(row, N, board, cols, diag1, diag2):
+
+    // BASE CASE: all N queens placed successfully
+    if row == N:
+        printSolution(board)
+        return
+
+    // Try placing queen in each column of current row
+    for col = 0 to N - 1:
+
+        d1 = row - col + (N - 1)    // left diagonal index (offset to avoid negatives)
+        d2 = row + col               // right diagonal index
+
+        // CONSTRAINT CHECK: column and both diagonals must be free
+        if cols[col] == false AND diag1[d1] == false AND diag2[d2] == false:
+
+            // CHOOSE: place queen
+            board[row] = col
+            cols[col]  = true
+            diag1[d1]  = true
+            diag2[d2]  = true
+
+            // EXPLORE: recurse to next row
+            placeQueen(row + 1, N, board, cols, diag1, diag2)
+
+            // UN-CHOOSE: remove queen (backtrack)
+            board[row] = -1
+            cols[col]  = false
+            diag1[d1]  = false
+            diag2[d2]  = falseImprovement over basic 2D approach:Aspect2D Board1D Array + Diagonal TrackingConflict checkO(N) scan of row/col/diagO(1) array lookupMemoryO(N²)O(N)State restoreClear multiple cellsFlip 3 boolean valuesCode complexityHigherLower and cleanerc) Full Trace for N=4Setup: board[4], cols[4], diag1[7] (indices 0–6), diag2[7] (indices 0–6)Diagonal index formulas: d1 = row - col + 3, d2 = row + col
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetDiagonal array states at solution board = [0, 3, 1, 2]:ArrayOccupied indicesMeaningcols0, 1, 2, 3All columns used (correct — one per row)diag1 (row−col+3)3, 1, 4, 2All four left diagonals distinct ✓diag2 (row+col)0, 4, 3, 5All four right diagonals distinct ✓d) Finding Just ONE Solution — Early Exit ModificationThe standard algorithm finds all solutions by always continuing after a success. To stop at the first, we need the recursion to propagate a success signal upward and abort all remaining loops:function solveNQueens(N):
+    board = array of size N
+    cols  = boolean array[N]
+    diag1 = boolean array[2N-1]
+    diag2 = boolean array[2N-1]
+
+    found = placeQueen(0, N, board, cols, diag1, diag2)
+    if found: printSolution(board)
+    else:     print("No solution exists")
+
+function placeQueen(row, N, board, cols, diag1, diag2):
+
+    // BASE CASE: all queens placed → signal success
+    if row == N:
+        return true                    // ← KEY CHANGE: return boolean
+
+    for col = 0 to N - 1:
+        d1 = row - col + (N - 1)
+        d2 = row + col
+
+        if cols[col]==false AND diag1[d1]==false AND diag2[d2]==false:
+
+            // CHOOSE
+            board[row]=col; cols[col]=true; diag1[d1]=true; diag2[d2]=true
+
+            // EXPLORE — if recursion succeeds, stop immediately
+            if placeQueen(row+1, N, board, cols, diag1, diag2) == true:
+                return true            // ← propagate success up, skip undo
+
+            // UN-CHOOSE (only reached if subtree had no solution)
+            board[row]=-1; cols[col]=false; diag1[d1]=false; diag2[d2]=false
+
+    return false    // no column worked in this row

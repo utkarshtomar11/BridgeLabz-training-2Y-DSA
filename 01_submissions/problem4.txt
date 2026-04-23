@@ -1,0 +1,35 @@
+
+Problem 4: Asymptotic Notation
+a) Formal Big-O Proofs
+Bubble Sort worst case O(n²):
+T(n) = n(n−1)/2 comparisons. We need to show T(n) ≤ c·n² for n ≥ n₀.
+n(n−1)/2 = n²/2 − n/2 ≤ n²/2 ≤ n² for all n ≥ 1.
+Choose c = 1, n₀ = 1. Therefore T(n) = O(n²). ∎
+Merge Sort worst case O(n log n):
+The recurrence is T(n) = 2T(n/2) + n. By Master Theorem (case 2, a=2, b=2, f(n)=n, log_b(a)=1):
+f(n) = Θ(n¹) = Θ(n^log_b(a)) → T(n) = Θ(n log n).
+For Big-O: T(n) ≤ c·n·log₂(n) for c = 2, n₀ = 2. Therefore T(n) = O(n log n). ∎
+
+b) Algorithm-Data Matching
+Data TypeBest AlgorithmJustificationType A: Nearly sortedInsertion SortBest case O(n) — almost no swaps needed; exploits existing orderType B: Completely randomMerge SortΘ(n log n) guaranteed regardless of input; no worst-case trapsType C: Reverse sortedMerge SortBubble/Insertion degrade to O(n²); QuickSort risks O(n²) with bad pivot; Merge Sort stays Θ(n log n)
+
+c) Θ vs O for Merge Sort and QuickSort
+Merge Sort is Θ(n log n) — this means it is both O(n log n) (upper bound) and Ω(n log n) (lower bound). It always performs n log n work regardless of input. The tight bound holds in all cases.
+QuickSort is O(n log n) for average case — this is only an upper bound for typical inputs. The worst case (already sorted data with naive pivot selection) is O(n²), so we cannot claim a tight Θ bound across all inputs. Using O notation is more honest: it says "no worse than n log n on average" without claiming a lower bound guarantee.
+In short: Θ makes a two-sided claim; O only makes a one-sided (upper) claim.
+
+d) Algorithm Decision Tree
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widget
+e) Mystery Sort vs Merge Sort Crossover
+Find n where 5n² + 100n + 1000 < 10n log₂n:
+For small n, the constants dominate and Mystery Sort is competitive. Testing values:
+nMystery Sort: 5n²+100n+1000Merge Sort: 10n·log₂n102,5003325018,5002,81410061,0006,644200221,00015,288
+Mystery Sort is always slower than Merge Sort for n ≥ 1 in these calculations. The reason: the 5n² term grows much faster than 10n log n. Even at n=2, Mystery Sort costs 5(4)+200+1000 = 1,220 vs Merge Sort's 10(2)(1) = 20.
+Algebraically: Dividing both sides by n: 5n + 100 + 1000/n < 10 log₂n. As n increases, 5n grows linearly while 10 log₂n grows only logarithmically — so Mystery Sort never catches up. Mystery Sort is only competitive in the regime n < ~5 where startup overhead of Merge Sort dominates, which is below the practical sorting threshold anyway.
+Conclusion: Mystery Sort should not be used. Merge Sort dominates at every practical scale.

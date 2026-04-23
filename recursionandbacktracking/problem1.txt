@@ -1,0 +1,10 @@
+function calculateSize(node):
+
+    
+    if node.isFile():
+        return node.size
+
+    
+    total = 0
+    for each child in node.children:
+        total = total + calculateSize(child)   

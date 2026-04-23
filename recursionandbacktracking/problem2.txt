@@ -1,0 +1,61 @@
+Problem 2: Backtracking — Word Puzzle Game
+a) Backtracking Algorithm Design
+State Representation
+current_position : (row, col)     — where we are in the grid right now
+word_index       : int            — how many letters of the target we've matched so far
+visited[][]      : boolean N×M   — which cells are already used in the current path
+path[]           : list of (row,col) — the sequence of cells chosen so far
+Pseudocode
+GRID (4×4):
+  C A T S
+  O R E A
+  D E A M
+  E L L S
+
+8 possible directions: (-1,-1),(-1,0),(-1,+1),(0,-1),(0,+1),(+1,-1),(+1,0),(+1,+1)
+
+function wordExists(grid, word):
+    for row = 0 to N-1:
+        for col = 0 to M-1:
+            if grid[row][col] == word[0]:          // find all starting cells
+                visited = new boolean[N][M]
+                if backtrack(grid, word, row, col, 0, visited):
+                    return true
+    return false
+
+function backtrack(grid, word, row, col, wordIndex, visited):
+
+    // GOAL CONDITION: matched all characters
+    if wordIndex == length(word):
+        return true
+
+    // CONSTRAINTS: bounds + not visited + letter matches
+    if row < 0 OR row >= N OR col < 0 OR col >= M:
+        return false
+    if visited[row][col] == true:
+        return false
+    if grid[row][col] != word[wordIndex]:
+        return false
+
+    // CHOOSE: mark this cell as part of current path
+    visited[row][col] = true
+
+    // EXPLORE: try all 8 adjacent neighbours
+    for each direction (dr, dc) in directions:
+        if backtrack(grid, word, row+dr, col+dc, wordIndex+1, visited):
+            return true       // found — propagate success up
+
+    // UN-CHOOSE: restore state (backtrack)
+    visited[row][col] = false
+    return false
+Four Pillars of the Backtracking Framework
+Pillar	In This Problem
+State	(row, col, wordIndex, visited[][])
+Choices	8 neighbouring cells at each step
+Constraints	In bounds + not visited + letter matches
+Goal	wordIndex == word.length
+b) Decision Tree for "DREAM"
+First, here is the grid with coordinates for reference — each cell is labeled (row,col) starting from (0,0) at top-left.
+
+
+

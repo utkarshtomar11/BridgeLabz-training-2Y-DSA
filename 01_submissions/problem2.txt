@@ -1,0 +1,39 @@
+Problem 2: Time Complexity Analysis
+a) Worst-Case Operations (n = 10,000,000)
+
+Algorithm A (Linear Search): Checks every element → 10,000,000 comparisons
+Algorithm B (Binary Search): Halves the search space each step → ⌈log₂(10,000,000)⌉ = ⌈23.25⌉ = 24 comparisons
+Algorithm C (Hash Table): Single hash computation + lookup → ~1 comparison (O(1) amortized)
+
+
+b) Big-O Notation
+
+A: O(n) — in the worst case, every element is visited
+B: O(log n) — search space halves each iteration; T(n) ≤ log₂(n) + 1
+C: O(1) — hash function maps directly to a bucket; independent of n
+
+
+c) Operations Comparison Table
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widget
+d) Peak Load Analysis (50,000 checks/second, 1 ns per comparison)
+
+Algorithm A: 50,000 × 10,000,000 ns = 500 seconds per second — cannot handle load ✗
+Algorithm B: 50,000 × 24 ns = 1.2 ms per second — easily handles load ✓
+Algorithm C: 50,000 × 1 ns = 0.05 ms per second — trivially handles load ✓
+
+
+e) Break-even for Binary Search vs Linear Search
+Let k = number of searches, n = list size.
+
+Cost of repeated linear search: k × n
+Cost of sort + repeated binary search: n log n + k × log n
+
+Binary search is worthwhile when: n log n + k log n < kn
+Solving for k: k(n − log n) > n log n → k > n log n / (n − log n)
+For n = 10,000,000: k > (10⁷ × 23.25) / (10⁷ − 23.25) ≈ just 24 searches. Beyond that, sorting once and using binary search pays off. (In practice, for large n, even 2–3 searches justify sorting.)

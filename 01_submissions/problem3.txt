@@ -1,0 +1,53 @@
+Problem 3: Space Complexity and Space-Time Tradeoffs
+a) Time Complexity
+Implementation A (Nested Loop):
+
+Outer loop: m iterations (prerequisites)
+Inner loop: up to n iterations (completed courses)
+Worst case: O(m × n)
+
+Implementation B (Hash Set):
+
+Building the set: O(n) — one pass through completed courses
+Checking each prerequisite: O(m) — each contains() is O(1)
+Total: O(n + m)
+
+
+b) Space Complexity
+
+Implementation A: O(1) auxiliary space — only uses a found boolean flag
+Implementation B: O(n) auxiliary space — stores all n completed course IDs in the hash set
+
+
+c) Daily Calculations (n=40, m=5, 100,000 students/day)
+Implementation A — total comparisons/day:
+Worst case per student = 5 × 40 = 200 comparisons
+Total = 200 × 100,000 = 20,000,000 comparisons/day
+Implementation B — memory usage/day:
+Each hash set = 40 entries × 8 bytes = 320 bytes per student
+Total (if all sets persist) = 320 × 100,000 = 32,000,000 bytes = 32 MB/day (very manageable)
+
+d) Infrastructure Decision (10,000 concurrent requests)
+Response time constraint (<10ms):
+
+Impl A per request: 5 × 40 × 0.1 µs = 20 µs → well under 10ms ✓
+Impl B per request: (40 + 5) × 0.1 µs = 4.5 µs → well under 10ms ✓
+
+Both pass the time constraint for typical values. However, if n and m scale (e.g. n=500, m=50):
+
+Impl A: 50 × 500 × 0.1 µs = 2,500 µs = 2.5 ms ✓ (but approaches limit)
+Impl B: (500 + 50) × 0.1 µs = 55 µs ✓ (remains fast)
+
+Memory constraint (<1 GB for 10,000 concurrent requests):
+
+Impl A: O(1) extra per request → ~0 MB overhead ✓
+Impl B: 10,000 × 40 × 8 bytes = 3.2 MB ✓ (well within 1 GB)
+
+Verdict: Both satisfy current constraints. Choose Implementation B for scalability — as user history grows (larger n), Impl A degrades quadratically while Impl B stays linear.
+
+e) Hybrid Strategy
+When m is very small (1–2 prerequisites), the overhead of building a hash set (O(n)) outweighs the savings — you'd spend more time creating the set than you'd save on lookups. A simple linear scan of the completed courses is faster in practice.
+When m is large (20+ prerequisites), each hash lookup saves O(n) time, so the upfront O(n) build cost amortizes quickly.
+Threshold formula: Build the hash set if the savings exceed the cost:
+m × n > n + m → mn − m > n → m(n−1) > n → m > n / (n−1)
+For large n, this simplifies to m > 1, but in practice (accounting for constant-factor overhead of hash operations), the crossover is around m ≥ 4–5 prerequisites. Use linear scan for m ≤ 3, hash set for m ≥ 4.

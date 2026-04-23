@@ -1,0 +1,29 @@
+Problem 1: Algorithm Properties and Correctness
+a) Five Properties Evaluation
+Algorithm A satisfies all five properties:
+
+Input: Takes temperature[] array and n ✓
+Output: Returns average ✓
+Definiteness: Every step is unambiguous ✓
+Finiteness: Loop runs exactly n times, then halts ✓
+Effectiveness: Uses only basic arithmetic ✓
+
+Algorithm B also satisfies all five formally, but has a logical error that makes it produce wrong output (see part c).
+
+b) Step-by-step Trace: [20, 25, 22, 24, 21], n = 5
+Algorithm A:
+StepOperationValueInittotal = 00i=1total = 0 + 2020i=2total = 20 + 2545i=3total = 45 + 2267i=4total = 67 + 2491i=5total = 91 + 21112Finalaverage = 112 / 522.4 ✓
+Algorithm B:
+StepOperationValueInitsum = temperature[1] = 2020i=2sum = 20 + 2545i=3sum = 45 + 2267i=4sum = 67 + 2491i=5sum = 91 + 211122nd loop, i=1sum = 112 / 522.4i=2sum = 22.4 / 54.48i=3sum = 4.48 / 50.896i=4sum = 0.896 / 50.1792i=5sum = 0.1792 / 50.03584 ✗
+
+c) Logical Error in Algorithm B
+The second loop divides sum by n a total of n times, computing sum / n^n instead of sum / n. The correct average requires dividing the total once by n. This violates the mathematical definition of arithmetic mean: x̄ = Σxᵢ / n (one division, not n divisions).
+
+d) Comparison
+CriterionAlgorithm AAlgorithm BCorrectness✓ Correct✗ WrongSimplicityHigher — one loopLower — two loopsEfficiencyO(n)O(n) but does more work
+Algorithm A should be chosen. Correctness is non-negotiable; no amount of efficiency justifies a wrong answer. Algorithm A is also simpler and equally efficient.
+
+e) Test Strategy for Algorithm A
+#InputExpected OutputPurpose1[20, 25, 22, 24, 21], n=522.4Normal case2[15], n=115.0Edge: single element3[0, 0, 0], n=30.0All zeros4[-10, -20, -30], n=3-20.0Negative temperatures5[-5, 0, 5], n=30.0Mixed positive/negative6n=0Error/handle gracefullyEdge: empty array (division by zero)7[100, 100, 100], n=3100.0All same values
+
+
