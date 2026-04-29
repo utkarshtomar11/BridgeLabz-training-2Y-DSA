@@ -1,0 +1,139 @@
+================================================================
+Problem 2: Course Prerequisite System - SOLUTION
+================================================================
+
+----------------------------------------------------------------
+a) Graph Representation:
+----------------------------------------------------------------
+   --> Use DIRECTED graph with ADJACENCY LIST
+
+   Justification:
+   - Prerequisites are one-way (CS101 -> CS102 does NOT mean
+     CS102 -> CS101), so DIRECTED graph is required
+   - Adjacency list is efficient for sparse course graphs
+
+   Directed Adjacency List:
+   CS101   -> [CS102, CS201]
+   CS102   -> [CS202]
+   CS201   -> []
+   CS202   -> []
+   MATH101 -> [CS201]
+
+   This is a Directed Acyclic Graph (DAG) — no cycles exist
+   in a valid prerequisite system.
+
+----------------------------------------------------------------
+b) Cycle Detection Algorithm (using DFS):
+----------------------------------------------------------------
+   Use DFS with 3 states for each node:
+   - WHITE (0): Not yet visited
+   - GRAY  (1): Currently being processed (in DFS stack)
+   - BLACK (2): Fully processed
+
+   If during DFS we visit a GRAY node again -> CYCLE FOUND
+
+   Algorithm:
+   hasCycle(graph):
+     color[] = WHITE for all vertices
+     for each vertex v:
+       if color[v] == WHITE:
+         if DFS_Cycle(v, color) == true:
+           return true (cycle detected)
+     return false
+
+   DFS_Cycle(v, color):
+     color[v] = GRAY
+     for each neighbor u of v:
+       if color[u] == GRAY:
+         return true   (back edge -> cycle!)
+       if color[u] == WHITE:
+         if DFS_Cycle(u, color): return true
+     color[v] = BLACK
+     return false
+
+   Trace on our graph:
+   Start DFS from CS101 (WHITE)
+     Mark CS101 = GRAY
+     Visit CS102 (WHITE)
+       Mark CS102 = GRAY
+       Visit CS202 (WHITE)
+         Mark CS202 = GRAY
+         No neighbors -> Mark CS202 = BLACK
+       Mark CS102 = BLACK
+     Visit CS201 (WHITE)
+       Mark CS201 = GRAY
+       No neighbors -> Mark CS201 = BLACK
+     Mark CS101 = BLACK
+   Start DFS from MATH101 (WHITE)
+     Mark MATH101 = GRAY
+     Visit CS201 (BLACK - already done) -> OK
+     Mark MATH101 = BLACK
+
+   --> No cycle found. Valid prerequisite system. ✓
+
+----------------------------------------------------------------
+c) All courses that must be completed before CS202:
+----------------------------------------------------------------
+   Algorithm: Reverse DFS / BFS from CS202 using reversed edges
+
+   Reverse the graph (flip all edges):
+   Reversed:
+   CS102 <- CS101      becomes   CS102 -> CS101
+   CS202 <- CS102      becomes   CS202 -> CS102
+   CS201 <- CS101      becomes   CS201 -> CS101
+   CS201 <- MATH101    becomes   CS201 -> MATH101
+
+   Now do BFS/DFS from CS202 in the reversed graph:
+
+   BFS from CS202 (reversed graph):
+   Queue: [CS202]
+   Step 1: Dequeue CS202 -> neighbor CS102 -> enqueue
+   Step 2: Dequeue CS102 -> neighbor CS101 -> enqueue
+   Step 3: Dequeue CS101 -> neighbors CS202(visited), nothing new
+
+   --> Prerequisites of CS202: CS102, CS101
+   (MATH101 and CS201 are NOT required for CS202)
+
+----------------------------------------------------------------
+d) Valid course order (Topological Sort using Kahn's Algorithm):
+----------------------------------------------------------------
+   Algorithm: BFS-based Topological Sort (Kahn's)
+
+   Step 1: Calculate in-degree of all vertices
+   CS101   in-degree = 0
+   CS102   in-degree = 1 (from CS101)
+   CS201   in-degree = 2 (from CS101, MATH101)
+   CS202   in-degree = 1 (from CS102)
+   MATH101 in-degree = 0
+
+   Step 2: Enqueue all vertices with in-degree = 0
+   Queue: [CS101, MATH101]
+
+   Step 3: Process queue
+   Dequeue CS101:
+     Result: [CS101]
+     Reduce in-degree of CS102 -> 0, enqueue
+     Reduce in-degree of CS201 -> 1
+     Queue: [MATH101, CS102]
+
+   Dequeue MATH101:
+     Result: [CS101, MATH101]
+     Reduce in-degree of CS201 -> 0, enqueue
+     Queue: [CS102, CS201]
+
+   Dequeue CS102:
+     Result: [CS101, MATH101, CS102]
+     Reduce in-degree of CS202 -> 0, enqueue
+     Queue: [CS201, CS202]
+
+   Dequeue CS201:
+     Result: [CS101, MATH101, CS102, CS201]
+     No outgoing edges
+     Queue: [CS202]
+
+   Dequeue CS202:
+     Result: [CS101, MATH101, CS102, CS201, CS202]
+     Queue: []
+
+   --> Valid Course Order: CS101 -> MATH101 -> CS102 -> CS201 -> CS202
+   (Other valid orderings also exist)

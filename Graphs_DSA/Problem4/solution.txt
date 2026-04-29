@@ -1,0 +1,148 @@
+================================================================
+Problem 4: Island Counter - SOLUTION
+================================================================
+
+Input Grid (rows 0-3, cols 0-4):
+  Row 0:  1 1 0 0 0
+  Row 1:  1 1 0 0 1
+  Row 2:  0 0 1 0 1
+  Row 3:  0 0 0 1 1
+
+----------------------------------------------------------------
+a) Graph Modeling:
+----------------------------------------------------------------
+   Vertices: Every cell (i, j) in the grid where grid[i][j] = 1
+             is a vertex (land cell)
+
+   Edges:    Two land cells are connected by an edge if they are
+             horizontally or vertically adjacent
+             i.e., cell (i,j) connects to (i+1,j), (i-1,j),
+                                           (i,j+1), (i,j-1)
+             (if those neighbors are also land = 1)
+
+   Each connected component of this graph = one island.
+   Problem reduces to: count number of connected components.
+
+   Islands in the grid:
+   Island 1: cells (0,0),(0,1),(1,0),(1,1)   [top-left cluster]
+   Island 2: cell  (2,2)                     [single cell]
+   Island 3: cells (1,4),(2,4),(3,3),(3,4)   [bottom-right cluster]
+
+   --> Total Islands = 3
+
+----------------------------------------------------------------
+b) DFS Algorithm to count islands:
+----------------------------------------------------------------
+
+   Algorithm:
+   count = 0
+   for each cell (i, j) in grid:
+     if grid[i][j] == 1 and not visited:
+       DFS(i, j)      <- sinks the entire island
+       count += 1
+   return count
+
+   DFS(i, j):
+     if out of bounds OR grid[i][j] == 0 OR visited: return
+     mark (i,j) as visited
+     DFS(i-1, j)   <- up
+     DFS(i+1, j)   <- down
+     DFS(i,   j-1) <- left
+     DFS(i,   j+1) <- right
+
+   Trace on our grid:
+
+   (0,0) = 1, unvisited -> DFS(0,0), count = 1
+     DFS sinks: (0,0),(0,1),(1,0),(1,1) -> all marked visited
+
+   (0,1),(1,0),(1,1) already visited, skip
+
+   (1,4) = 1, unvisited -> DFS(1,4), count = 2
+     DFS sinks: (1,4),(2,4),(3,4),(3,3) -> all marked visited
+
+   (2,2) = 1, unvisited -> DFS(2,2), count = 3
+     DFS sinks: (2,2) -> no adjacent land cells
+
+   --> Island Count = 3 ✓
+
+----------------------------------------------------------------
+c) BFS Algorithm to count islands:
+----------------------------------------------------------------
+
+   Algorithm:
+   count = 0
+   for each cell (i, j) in grid:
+     if grid[i][j] == 1 and not visited:
+       BFS(i, j)
+       count += 1
+   return count
+
+   BFS(i, j):
+     enqueue (i, j)
+     mark (i, j) as visited
+     while queue not empty:
+       (r, c) = dequeue
+       for each direction (up, down, left, right):
+         (nr, nc) = neighbor
+         if in bounds AND grid[nr][nc] == 1 AND not visited:
+           mark (nr, nc) as visited
+           enqueue (nr, nc)
+
+   Trace for Island 1 starting at (0,0):
+   Queue: [(0,0)]
+   Dequeue (0,0) -> check neighbors:
+     (0,1)=1 enqueue, (1,0)=1 enqueue
+   Queue: [(0,1),(1,0)]
+   Dequeue (0,1) -> check neighbors:
+     (0,0) visited, (1,1)=1 enqueue, (0,2)=0 skip
+   Queue: [(1,0),(1,1)]
+   Dequeue (1,0) -> check neighbors:
+     (0,0) visited, (1,1) visited, (2,0)=0 skip
+   Queue: [(1,1)]
+   Dequeue (1,1) -> all neighbors visited/water
+   Queue: [] -> Island 1 fully explored
+
+   --> Same final count = 3 ✓
+
+----------------------------------------------------------------
+d) Time and Space Complexity:
+----------------------------------------------------------------
+
+   Let M = number of rows, N = number of columns
+
+   Both DFS and BFS:
+
+   Time Complexity:  O(M x N)
+   - Every cell is visited at most once
+   - Each cell's 4 neighbors are checked once
+
+   Space Complexity: O(M x N)
+   - Visited array: O(M x N)
+   - DFS recursion stack (worst case all land): O(M x N)
+   - BFS queue (worst case all land): O(M x N)
+
+   Both approaches have identical time and space complexity.
+   DFS is simpler to code; BFS avoids deep recursion issues.
+
+----------------------------------------------------------------
+e) Diagonal connections:
+----------------------------------------------------------------
+   Currently: 4-directional (up, down, left, right)
+   With diagonals: 8-directional
+
+   Change needed:
+   Add 4 more directions in the neighbor check:
+   Current directions:  (-1,0),(1,0),(0,-1),(0,1)
+   With diagonals add:  (-1,-1),(-1,1),(1,-1),(1,1)
+
+   Impact on our grid:
+   With 4-directions: 3 islands (as solved above)
+   With 8-directions: Island 1 and Island 3 may merge
+     Check if (1,1) and (2,2) are diagonally connected:
+     (1,1) and (2,2) -> difference is (1,1) -> YES, diagonal!
+     So Islands 1 and 2 would merge with diagonal connectivity.
+
+   With 8-directional: Count = 2 islands
+   (Island 1+2 merged, Island 3 separate)
+
+   Time and Space complexity remain O(M x N).

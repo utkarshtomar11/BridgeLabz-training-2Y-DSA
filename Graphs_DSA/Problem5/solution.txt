@@ -1,0 +1,164 @@
+================================================================
+Problem 5: Network Packet Routing - SOLUTION
+================================================================
+
+Network (undirected, unweighted):
+  R1 --- R2
+  |       |
+  R3 --- R4 --- R5 --- R6
+
+Connections: R1-R2, R1-R3, R2-R4, R3-R4, R4-R5, R5-R6
+
+----------------------------------------------------------------
+a) Both Representations:
+----------------------------------------------------------------
+
+   ADJACENCY MATRIX (6x6, vertices indexed R1=0 to R6=5):
+
+        R1  R2  R3  R4  R5  R6
+   R1 [  0   1   1   0   0   0 ]
+   R2 [  1   0   0   1   0   0 ]
+   R3 [  1   0   0   1   0   0 ]
+   R4 [  0   1   1   0   1   0 ]
+   R5 [  0   0   0   1   0   1 ]
+   R6 [  0   0   0   0   1   0 ]
+
+   Matrix is symmetric (undirected graph).
+   1 = connection exists, 0 = no connection.
+
+   ---
+
+   ADJACENCY LIST:
+   R1 -> [R2, R3]
+   R2 -> [R1, R4]
+   R3 -> [R1, R4]
+   R4 -> [R2, R3, R5]
+   R5 -> [R4, R6]
+   R6 -> [R5]
+
+----------------------------------------------------------------
+b) Space Complexity:
+----------------------------------------------------------------
+
+   V = 6 vertices, E = 6 edges
+
+   Adjacency Matrix:
+   Stores V x V = 6 x 6 = 36 cells regardless of edges
+   Space Complexity: O(V^2) = O(36)
+
+   Adjacency List:
+   Stores V + 2E entries (each edge stored twice, undirected)
+   = 6 + 2*6 = 6 + 12 = 18 entries
+   Space Complexity: O(V + E) = O(12)
+
+   Adjacency List uses ~50% less space for this network.
+   For larger sparse networks the difference is far greater.
+
+----------------------------------------------------------------
+c) Algorithm to check full network connectivity:
+----------------------------------------------------------------
+   --> Use DFS or BFS from any router; check all are visited
+
+   Algorithm:
+   isConnected(graph):
+     visited = {}
+     DFS(R1, visited)
+     return len(visited) == total_routers
+
+   DFS trace from R1:
+
+   Stack:   [R1]
+   Visited: {}
+
+   Pop R1 -> visited {R1}, push R2, R3
+   Pop R3 -> visited {R1,R3}, push R4 (R1 already visited)
+   Pop R4 -> visited {R1,R3,R4}, push R2, R5 (R3 visited)
+   Pop R5 -> visited {R1,R3,R4,R5}, push R6 (R4 visited)
+   Pop R6 -> visited {R1,R3,R4,R5,R6} (R5 visited)
+   Pop R2 -> visited {R1,R3,R4,R5,R6,R2} (R1,R4 visited)
+   Stack empty.
+
+   Visited count = 6 = total routers
+   --> Network is FULLY CONNECTED ✓
+
+----------------------------------------------------------------
+d) Alternative paths if R4-R5 connection fails:
+----------------------------------------------------------------
+   Remaining connections after R4-R5 failure:
+   R1-R2, R1-R3, R2-R4, R3-R4, R5-R6 (R4-R5 removed)
+
+   Updated Adjacency List:
+   R1 -> [R2, R3]
+   R2 -> [R1, R4]
+   R3 -> [R1, R4]
+   R4 -> [R2, R3]       <- R5 removed
+   R5 -> [R6]           <- R4 removed
+   R6 -> [R5]
+
+   Algorithm: BFS/DFS from R1 to find all paths to R6
+
+   DFS from R1 searching for R6:
+   Explore R1 -> R2 -> R4 -> R3 -> (no new) -> backtrack
+   R4 has no path to R5 anymore.
+   R1 -> R3 -> R4 -> R2 -> (no new) -> backtrack
+
+   R5 is now only connected to R6, and R4 cannot reach R5.
+
+   --> NO PATH exists from R1 to R6 after R4-R5 failure.
+   --> R1, R2, R3, R4 form one component.
+   --> R5, R6 form an isolated component.
+
+   Network is now DISCONNECTED. R4-R5 is a BRIDGE (critical
+   connection whose removal disconnects the graph).
+
+   Recommendation: Add redundant connection (e.g., R3-R5 or
+   R2-R5) to prevent single point of failure.
+
+----------------------------------------------------------------
+e) BFS - Minimum hops from R1 to R6 (original network):
+----------------------------------------------------------------
+
+   BFS from R1:
+
+   Queue:  [R1]
+   Visited: {R1}
+   Hops:   {R1: 0}
+   Parent: {}
+
+   Step 1: Dequeue R1
+           Neighbors: R2, R3 (unvisited)
+           Enqueue R2, R3
+           Hops:   {R2:1, R3:1}
+           Parent: {R2:R1, R3:R1}
+           Queue:  [R2, R3]
+
+   Step 2: Dequeue R2
+           Neighbors: R1(visited), R4(unvisited)
+           Enqueue R4
+           Hops:   {R4: 2}
+           Parent: {R4: R2}
+           Queue:  [R3, R4]
+
+   Step 3: Dequeue R3
+           Neighbors: R1(visited), R4(visited)
+           Nothing new.
+           Queue:  [R4]
+
+   Step 4: Dequeue R4
+           Neighbors: R2(visited), R3(visited), R5(unvisited)
+           Enqueue R5
+           Hops:   {R5: 3}
+           Parent: {R5: R4}
+           Queue:  [R5]
+
+   Step 5: Dequeue R5
+           Neighbors: R4(visited), R6(unvisited)
+           Enqueue R6 -> DESTINATION FOUND
+           Hops:   {R6: 4}
+           Parent: {R6: R5}
+
+   Trace back using parent map:
+   R6 <- R5 <- R4 <- R2 <- R1
+
+   --> Shortest path: R1 -> R2 -> R4 -> R5 -> R6
+   --> Minimum hops: 4

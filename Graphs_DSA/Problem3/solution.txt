@@ -1,0 +1,129 @@
+================================================================
+Problem 3: City Road Network - SOLUTION
+================================================================
+
+Roads:
+  A -> B  (5km, one-way)     B <-> C (3km, two-way)
+  A <-> D (7km, two-way)     D -> E  (2km, one-way)
+  C -> E  (4km, one-way)
+
+----------------------------------------------------------------
+a) Graph Representation Choice:
+----------------------------------------------------------------
+   --> DIRECTED + WEIGHTED graph with ADJACENCY LIST
+
+   Directed: Because some roads are one-way (A->B means you
+             cannot go from B to A on that road)
+
+   Weighted: Because roads have distances (km) which matter
+             for navigation and shortest path calculations
+
+   Adjacency List (with weights):
+   A -> [(B, 5), (D, 7)]
+   B -> [(A, 5), (C, 3)]    <-- B<->A because A<->... wait:
+                                A->B is one-way, so B cannot go to A
+   Corrected:
+   A -> [(B, 5), (D, 7)]
+   B -> [(C, 3)]
+   C -> [(B, 3), (E, 4)]
+   D -> [(A, 7), (E, 2)]
+   E -> []
+
+   Note: A<->D is two-way, so both A->D and D->A are stored.
+         A->B is one-way, so only A->B is stored (not B->A).
+         B<->C is two-way, so B->C and C->B are stored.
+
+----------------------------------------------------------------
+b) Algorithm to find all intersections reachable from A:
+----------------------------------------------------------------
+   --> Use DFS or BFS from A, following directed edges only
+
+   DFS from A:
+
+   Visited: {}
+   Stack:   [A]
+
+   Step 1: Pop A, mark visited {A}
+           Neighbors of A: B, D -> push both
+           Stack: [B, D]
+
+   Step 2: Pop D, mark visited {A, D}
+           Neighbors of D: A (visited), E -> push E
+           Stack: [B, E]
+
+   Step 3: Pop E, mark visited {A, D, E}
+           Neighbors of E: none
+           Stack: [B]
+
+   Step 4: Pop B, mark visited {A, D, E, B}
+           Neighbors of B: C -> push C
+           Stack: [C]
+
+   Step 5: Pop C, mark visited {A, D, E, B, C}
+           Neighbors of C: B (visited), E (visited)
+           Stack: []  -> Done
+
+   --> All intersections reachable from A: B, C, D, E
+   --> All intersections in the network are reachable from A ✓
+
+----------------------------------------------------------------
+c) BFS to find path with fewest hops from A to E:
+----------------------------------------------------------------
+   BFS treats all edges equally (ignores weights), finding
+   the path with the minimum number of edges (turns/hops).
+
+   BFS from A:
+
+   Queue:  [A]
+   Visited: {A}
+   Parent:  {}
+   Hops:    {A: 0}
+
+   Step 1: Dequeue A
+           Unvisited neighbors: B, D
+           Enqueue B, D
+           Hops:   {A:0, B:1, D:1}
+           Parent: {B:A, D:A}
+           Queue:  [B, D]
+
+   Step 2: Dequeue B
+           Unvisited neighbors: C
+           Enqueue C
+           Hops:   {C: 2}
+           Parent: {C: B}
+           Queue:  [D, C]
+
+   Step 3: Dequeue D
+           Unvisited neighbors: E
+           Enqueue E -> DESTINATION FOUND
+           Hops:   {E: 2}
+           Parent: {E: D}
+           Queue:  [C, E]
+
+   Trace back path to E:
+   E <- D <- A
+
+   --> Fewest hops path: A -> D -> E  (2 hops)
+
+   Alternative path A -> B -> C -> E would take 3 hops.
+
+----------------------------------------------------------------
+d) Why DFS might NOT find the shortest distance path:
+----------------------------------------------------------------
+   DFS explores as DEEP as possible along one branch before
+   backtracking. It finds A PATH, not necessarily the SHORTEST.
+
+   Example with our graph:
+   DFS from A might explore: A -> B -> C -> E
+   This path covers: 5 + 3 + 4 = 12 km
+
+   But the actual shortest distance path is: A -> D -> E
+   which covers: 7 + 2 = 9 km
+
+   DFS would return 12 km path while the optimal is 9 km.
+
+   Key Reason: DFS does not consider weights or number of hops.
+   It just follows one path until it reaches the destination.
+
+   For SHORTEST DISTANCE in weighted graphs -> use Dijkstra's
+   For FEWEST HOPS in unweighted graphs    -> use BFS

@@ -1,0 +1,107 @@
+================================================================
+Problem 1: Social Network Connection - SOLUTION
+================================================================
+
+Network:
+  Alice --- Bob --- David
+    |                 |
+  Charlie --- Eve ----+
+
+----------------------------------------------------------------
+a) Graph Representation Choice:
+----------------------------------------------------------------
+   --> Use ADJACENCY LIST
+
+   Justification:
+   - Social networks are SPARSE graphs (users have far fewer
+     friends than the total number of users)
+   - Space complexity: O(V + E) vs O(V^2) for matrix
+   - Finding all friends of a user = O(degree) which is fast
+   - Adding new users and friendships is easy: O(1)
+   - Real-world social networks (Facebook, Twitter) all use
+     adjacency list internally for this reason
+
+   Adjacency List Representation:
+   Alice   -> [Bob, Charlie]
+   Bob     -> [Alice, David]
+   Charlie -> [Alice, Eve]
+   David   -> [Bob, Eve]
+   Eve     -> [Charlie, David]
+
+----------------------------------------------------------------
+b) Algorithm to find all friends of Alice:
+----------------------------------------------------------------
+   Algorithm: Direct Adjacency List Lookup
+
+   Steps:
+   1. Look up Alice in the adjacency list
+   2. Return all vertices in her list
+
+   Trace:
+   Lookup Alice -> [Bob, Charlie]
+   --> Friends of Alice: Bob, Charlie
+
+   Time Complexity:  O(degree of Alice) = O(k)
+   Space Complexity: O(1) extra space
+
+----------------------------------------------------------------
+c) Algorithm to check if Bob and Eve are directly connected:
+----------------------------------------------------------------
+   Algorithm: Adjacency List Search
+
+   Steps:
+   1. Look up Bob in the adjacency list
+   2. Check if Eve exists in Bob's neighbor list
+
+   Trace:
+   Bob's neighbors -> [Alice, David]
+   Is Eve in [Alice, David]? --> NO
+
+   --> Bob and Eve are NOT directly connected.
+   (They are connected via David, but not directly)
+
+   Time Complexity:  O(degree of Bob)
+   Space Complexity: O(1)
+
+----------------------------------------------------------------
+d) Algorithm to find shortest path (Alice to Eve):
+----------------------------------------------------------------
+   --> Use BFS (Breadth-First Search)
+   BFS guarantees shortest path in unweighted graphs.
+
+   BFS from Alice:
+
+   Queue: [Alice]     Visited: {Alice}     Distance: {Alice:0}
+
+   Step 1: Dequeue Alice
+           Neighbors: Bob, Charlie (unvisited)
+           Enqueue Bob, Charlie
+           Queue: [Bob, Charlie]
+           Distance: {Alice:0, Bob:1, Charlie:1}
+           Parent:   {Bob:Alice, Charlie:Alice}
+
+   Step 2: Dequeue Bob
+           Neighbors: Alice (visited), David (unvisited)
+           Enqueue David
+           Queue: [Charlie, David]
+           Distance: {Alice:0, Bob:1, Charlie:1, David:2}
+           Parent:   {David:Bob}
+
+   Step 3: Dequeue Charlie
+           Neighbors: Alice (visited), Eve (unvisited)
+           Enqueue Eve
+           Queue: [David, Eve]
+           Distance: {Eve:2}
+           Parent:   {Eve:Charlie}
+
+   Step 4: Dequeue David
+           Neighbors: Bob (visited), Eve (visited)
+           Nothing new to enqueue
+
+   Step 5: Dequeue Eve -> DESTINATION FOUND!
+
+   Trace back using parent map:
+   Eve <- Charlie <- Alice
+
+   --> Shortest Path: Alice -> Charlie -> Eve
+   --> Degree of Separation: 2
