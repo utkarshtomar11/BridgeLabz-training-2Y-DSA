@@ -1,0 +1,92 @@
+================================================================
+Problem 4: BST Operations - SOLUTION
+================================================================
+
+Initial BST:
+              15
+             /  \
+            10   20
+           / \   / \
+          8  12 17  25
+
+----------------------------------------------------------------
+a) Delete node 10 (has two children: 8 and 12):
+----------------------------------------------------------------
+   Node 10 has two children -> use INORDER SUCCESSOR method
+
+   Step 1: Find inorder successor of 10
+           = smallest node in RIGHT subtree of 10
+           = 12 (only node in right subtree)
+
+   Step 2: Replace value of node 10 with 12
+
+   Step 3: Delete original node 12 (it's a leaf -> simple delete)
+
+   BST after deleting 10:
+              15
+             /  \
+            12   20
+           /    / \
+          8    17  25
+
+----------------------------------------------------------------
+b) Insert roll number 14 into the modified tree:
+----------------------------------------------------------------
+   Step 1: 14 < 15 -> go LEFT  (to 12)
+   Step 2: 14 > 12 -> go RIGHT of 12
+   Step 3: Right of 12 is NULL -> INSERT 14 here
+
+   BST after inserting 14:
+              15
+             /  \
+            12   20
+           /  \  / \
+          8   14 17  25
+
+----------------------------------------------------------------
+c) Insert roll number 9:
+----------------------------------------------------------------
+   Step 1: 9 < 15 -> go LEFT  (to 12)
+   Step 2: 9 < 12 -> go LEFT  (to 8)
+   Step 3: 9 > 8  -> go RIGHT of 8
+   Step 4: Right of 8 is NULL -> INSERT 9 here
+
+   BST after inserting 9:
+              15
+             /  \
+            12   20
+           /  \  / \
+          8   14 17  25
+           \
+            9
+
+----------------------------------------------------------------
+d) Finding roll numbers between 10 and 20:
+----------------------------------------------------------------
+   --> Use INORDER traversal
+
+   Reason: Inorder visits nodes in sorted ascending order.
+   Traverse the tree and collect nodes where value >= 10
+   AND value <= 20. You can prune branches early:
+   - If current node < 10, skip left subtree
+   - If current node > 20, skip right subtree
+   This is more efficient than checking every node.
+
+   Result from current tree: 12, 14, 15, 17
+
+----------------------------------------------------------------
+e) Time complexity for searching roll number 25:
+----------------------------------------------------------------
+
+   Best Case (Balanced BST):
+   Height = O(log n), here log2(7) ≈ 3
+   Search path: 15 -> 20 -> 25  (3 comparisons)
+   --> Time Complexity: O(log n)
+
+   Worst Case (Completely Skewed BST):
+   If tree degrades to a linked list (sorted insertion),
+   every node must be visited one by one.
+   --> Time Complexity: O(n)
+
+   In our current tree:
+   15 -> 20 -> 25 = 3 comparisons = O(log n) ✓

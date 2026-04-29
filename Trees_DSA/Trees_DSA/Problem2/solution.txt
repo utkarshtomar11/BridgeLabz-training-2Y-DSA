@@ -1,0 +1,59 @@
+================================================================
+Problem 2: Traversal Application - SOLUTION
+================================================================
+
+Tree Structure:
+              root
+             /    \
+           home   var
+           / \      \
+         user docs  log
+         /
+       config
+
+----------------------------------------------------------------
+a) Alphabetical listing (if BST):
+----------------------------------------------------------------
+   --> Use INORDER traversal (Left -> Root -> Right)
+   In a BST, inorder traversal visits nodes in ascending /
+   alphabetical order automatically.
+
+----------------------------------------------------------------
+b) Total size of a directory:
+----------------------------------------------------------------
+   --> Use POSTORDER traversal (Left -> Right -> Root)
+   Reason: You must calculate sizes of all subdirectories
+   (children) before computing the size of the parent.
+   Postorder ensures children are processed before the parent.
+
+----------------------------------------------------------------
+c) Backup / copy directory structure:
+----------------------------------------------------------------
+   --> Use PREORDER traversal (Root -> Left -> Right)
+   Reason: Parent directory must be created before its
+   subdirectories and files can be placed inside it.
+   Preorder processes the root/parent first.
+
+----------------------------------------------------------------
+d) All Three Traversals:
+----------------------------------------------------------------
+
+   INORDER (Left -> Root -> Right):
+   config, user, home, docs, root, var, log
+
+   PREORDER (Root -> Left -> Right):
+   root, home, user, config, docs, var, log
+
+   POSTORDER (Left -> Right -> Root):
+   config, user, docs, home, log, var, root
+
+----------------------------------------------------------------
+e) Postorder for safe deletion:
+----------------------------------------------------------------
+   In postorder, children are always visited BEFORE the parent.
+   So all files and subdirectories inside a folder are deleted
+   first, and only then is the folder itself deleted.
+   This prevents errors from trying to delete a non-empty folder.
+
+   Deletion order:
+   config -> user -> docs -> home -> log -> var -> root

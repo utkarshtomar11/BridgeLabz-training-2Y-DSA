@@ -1,0 +1,80 @@
+================================================================
+Problem 3: BST Construction and Validation - SOLUTION
+================================================================
+
+Insert order: 50, 30, 70, 20, 40, 60, 80, 10, 25
+
+----------------------------------------------------------------
+a) Resulting BST:
+----------------------------------------------------------------
+
+              50
+            /    \
+          30      70
+         /  \    /  \
+        20  40  60  80
+       /  \
+      10  25
+
+   Insertion steps:
+   - Insert 50: becomes root
+   - Insert 30: 30 < 50  -> left of 50
+   - Insert 70: 70 > 50  -> right of 50
+   - Insert 20: 20 < 50  -> left, 20 < 30  -> left of 30
+   - Insert 40: 40 < 50  -> left, 40 > 30  -> right of 30
+   - Insert 60: 60 > 50  -> right, 60 < 70 -> left of 70
+   - Insert 80: 80 > 50  -> right, 80 > 70 -> right of 70
+   - Insert 10: 10 < 50  -> left, 10 < 30  -> left,
+                10 < 20  -> left of 20
+   - Insert 25: 25 < 50  -> left, 25 < 30  -> left,
+                25 > 20  -> right of 20
+
+----------------------------------------------------------------
+b) Search for ISBN 25 - step-by-step comparisons:
+----------------------------------------------------------------
+   Step 1: Compare 25 with 50 -> 25 < 50, go LEFT
+   Step 2: Compare 25 with 30 -> 25 < 30, go LEFT
+   Step 3: Compare 25 with 20 -> 25 > 20, go RIGHT
+   Step 4: Compare 25 with 25 -> MATCH FOUND!
+   Total comparisons: 4
+
+----------------------------------------------------------------
+c) Inorder Traversal (verify sorted output):
+----------------------------------------------------------------
+   Inorder result: 10, 20, 25, 30, 40, 50, 60, 70, 80
+   --> Output is in ascending order. VERIFIED. ✓
+
+----------------------------------------------------------------
+d) Validity check of given tree:
+----------------------------------------------------------------
+
+              50
+             /  \
+            30   70
+           / \   / \
+          20 65  60  80
+
+   --> INVALID BST ✗
+
+   Reason: Node 65 is in the LEFT subtree of root 50.
+   BST rule: ALL nodes in the left subtree of 50 must be < 50.
+   But 65 > 50, which directly violates the BST property.
+   Therefore, this is NOT a valid BST.
+
+----------------------------------------------------------------
+e) Height comparison - Balanced vs Skewed BST:
+----------------------------------------------------------------
+
+   Our Balanced BST height:
+   Longest path: 50 -> 30 -> 20 -> 10  (3 edges)
+   --> Height = 3
+
+   Completely Skewed BST (9 elements, inserted in sorted order):
+   10 -> 20 -> 25 -> 30 -> 40 -> 50 -> 60 -> 70 -> 80
+   (each node only has a right child, like a linked list)
+   --> Height = 8  (n - 1 for n nodes)
+
+   Conclusion:
+   Balanced BST Height = 3  (efficient: O(log n) operations)
+   Skewed BST Height   = 8  (inefficient: O(n) operations)
+   Balanced BST is nearly 3x more efficient in this case!

@@ -1,0 +1,46 @@
+================================================================
+Problem 1: Tree Terminology Identification - SOLUTION
+================================================================
+
+Tree Structure:
+              CEO
+             /   \
+           CTO   CFO
+           / \      \
+        Dev  Lead   HR
+             / \
+           Dev1 Dev2
+
+----------------------------------------------------------------
+a) Leaf Nodes (nodes with no children):
+----------------------------------------------------------------
+   --> Dev, Dev1, Dev2, HR
+   These nodes have no children below them.
+
+----------------------------------------------------------------
+b) Height of the Tree:
+----------------------------------------------------------------
+   Height = number of edges on longest path from root to a leaf
+   Longest path: CEO -> CTO -> Lead -> Dev1  (3 edges)
+   --> Height = 3
+
+----------------------------------------------------------------
+c) Depth of "Lead":
+----------------------------------------------------------------
+   Depth = number of edges from root to that node
+   Path: CEO -> CTO -> Lead  (2 edges)
+   --> Depth of Lead = 2
+
+----------------------------------------------------------------
+d) Ancestors of "Dev1":
+----------------------------------------------------------------
+   Ancestors = all nodes on path from root to Dev1 (excluding Dev1)
+   Path: CEO -> CTO -> Lead -> Dev1
+   --> Ancestors: Lead, CTO, CEO
+
+----------------------------------------------------------------
+e) Degree of CTO node:
+----------------------------------------------------------------
+   Degree = number of children a node has
+   CTO's children: Dev, Lead
+   --> Degree of CTO = 2
